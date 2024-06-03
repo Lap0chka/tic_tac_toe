@@ -26,6 +26,7 @@ class TicTacToe:
         return current_player % 2 == 0
 
     def check_win(self, current_player):
+        """Check player win or not"""
         won = False
         main_diagonal, additional_diagonal = [], []
 
