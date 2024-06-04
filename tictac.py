@@ -6,7 +6,6 @@ class TicTacToe:
         self.board = [[cell for cell in range(row, row + board_size)]
                       for row in range(1, board_size ** 2, board_size)]
         self.step = self.board_size ** 2
-        self.game()
 
     def draw_board(self):
         """Drawing board"""
@@ -18,7 +17,7 @@ class TicTacToe:
             print()
         print(('_' * self.board_size) * self.board_size, )
 
-    def game_step(self, field, current_player):
+    def game_step(self, field: int, current_player: bool) -> bool:
         """Players step"""
         self.step -= 1
         x_or_y = ['Y', 'X'][current_player]
@@ -100,8 +99,9 @@ class TicTacToe:
             except ValueError:
                 print(f'You can choose only number\nTry again')
 
-    def game(self):
-        """Start game"""
+
+class HumanVsHumanTicTacToe(TicTacToe):
+    def players_vs_player(self):
         current_player = True
         while True:
             field = self.move()
@@ -112,3 +112,30 @@ class TicTacToe:
                     self.__init__()
                 else:
                     break
+
+
+class ComputerVSHumanTicTacToe(TicTacToe):
+    """Class Computer VS Human """
+    def available_moves(self) -> list:
+        """Search available field for move"""
+        all_numbers_board = range(1, self.board_size ** 2)
+        available = [self.board[row][col] for row in range(self.board_size)
+                     for col in range(self.board_size)
+                     if self.board[row][col] in all_numbers_board
+                     ]
+        return available
+
+    def search_best_move(self):
+        """Search best move"""
+        available_move = self.available_moves()
+
+
+class GameTicTacToe(HumanVsHumanTicTacToe):
+    def __init__(self, board_size, mode):
+        super().__init__(board_size)
+        self.mode = mode
+        self.game()
+
+    def game(self):
+        if self.mode == 2:
+            self.players_vs_player()
