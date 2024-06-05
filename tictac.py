@@ -1,3 +1,6 @@
+from random import choice
+
+
 class TicTacToe:
     """Game TicTacToe"""
 
@@ -116,6 +119,7 @@ class HumanVsHumanTicTacToe(TicTacToe):
 
 class ComputerVSHumanTicTacToe(TicTacToe):
     """Class Computer VS Human """
+
     def available_moves(self) -> list:
         """Search available field for move"""
         all_numbers_board = range(1, self.board_size ** 2)
@@ -124,6 +128,15 @@ class ComputerVSHumanTicTacToe(TicTacToe):
                      if self.board[row][col] in all_numbers_board
                      ]
         return available
+
+    def computer_step(self):
+
+        while True:
+            available_move = self.available_moves()
+            step = choice(available_move)
+            self.game_step(step, True)
+            field = self.move()
+            self.game_step(field, False)
 
     def search_best_move(self):
         """Search best move"""
