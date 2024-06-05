@@ -6,9 +6,15 @@ class TicTacToe:
 
     def __init__(self, board_size=3):
         self.board_size = board_size
-        self.board = [[cell for cell in range(row, row + board_size)]
-                      for row in range(1, board_size ** 2, board_size)]
+        self.board = self.create_board(board_size)
         self.step = self.board_size ** 2
+        self.current_player = 'X'
+
+    @staticmethod
+    def create_board(board_size):
+        board = [[cell for cell in range(row, row + board_size)]
+                 for row in range(1, board_size ** 2, board_size)]
+        return board
 
     def draw_board(self):
         """Drawing board"""
@@ -20,15 +26,15 @@ class TicTacToe:
             print()
         print(('_' * self.board_size) * self.board_size, )
 
-    def game_step(self, field: int, current_player: bool) -> bool:
-        """Players step"""
+    def game_step(self, field: int, current_player: str):
+        """Human or computer step"""
         self.step -= 1
-        x_or_y = ['Y', 'X'][current_player]
         for row in range(self.board_size):
             for col in range(self.board_size):
                 if self.board[row][col] == field:
-                    self.board[row][col] = x_or_y
-        return current_player % 2 == 0
+                    self.board[row][col] = current_player
+
+        self.check_win(current_player)
 
     def check_win(self, current_player):
         """Check player win or not"""
@@ -59,9 +65,10 @@ class TicTacToe:
             won = True
 
         if won:
-            x_or_y = ['Y', 'X'][current_player % 2 == 0]
-            print(f'My congratulations. {x_or_y} WON !!!')
-            return True
+            print(f'My congratulations. {current_player.upper()} WON !!!')
+            self.draw_board()
+            self.play_again()
+
         if self.step == 0:
             print(f"It's draw!")
             return True
@@ -78,15 +85,6 @@ class TicTacToe:
         print('Bye Bye Bye\nSee you latter!!!')
         quit()
 
-    def play_again(self):
-        """Start game again or not"""
-        play_again = input('Play again? (y-yes): ').lower()
-        if play_again == 'y':
-            return True
-        else:
-            self.quit_the_game()
-            return False
-
     def move(self):
         max_number = self.board_size ** 2
         while True:
@@ -102,23 +100,20 @@ class TicTacToe:
             except ValueError:
                 print(f'You can choose only number\nTry again')
 
-
-class HumanVsHumanTicTacToe(TicTacToe):
-    def players_vs_player(self):
-        current_player = True
-        while True:
-            field = self.move()
-            current_player = self.game_step(field, current_player)
-            if self.check_win(current_player):
-                self.draw_board()
-                if self.play_again():
-                    self.__init__()
-                else:
-                    break
+    def next_player(self, current_payer: str) -> str:
+        if current_payer.lower() == 'x':
+            return 'Y'
+        return 'X'
 
 
-class ComputerVSHumanTicTacToe(TicTacToe):
-    """Class Computer VS Human """
+class GameSessionTicTacToe(TicTacToe):
+    """Class Computer VS Human or Human vs Human"""
+
+    def humans_move(self):
+        """Here function for human vs human"""
+        field = self.move()
+        self.game_step(field, self.current_player)
+        self.current_player = self.next_player(self.current_player)
 
     def available_moves(self) -> list:
         """Search available field for move"""
@@ -129,26 +124,39 @@ class ComputerVSHumanTicTacToe(TicTacToe):
                      ]
         return available
 
-    def computer_step(self):
-
-        while True:
-            available_move = self.available_moves()
-            step = choice(available_move)
-            self.game_step(step, True)
-            field = self.move()
-            self.game_step(field, False)
-
-    def search_best_move(self):
-        """Search best move"""
+    def best_move(self):
         available_move = self.available_moves()
+        field = choice(available_move)
+        return field
+
+    def computer_step(self):
+        field = self.best_move()
+        self.game_step(field, self.current_player)
+        self.current_player = self.next_player(self.current_player)
+
+    def computer_game(self):
+        self.computer_step()
 
 
-class GameTicTacToe(HumanVsHumanTicTacToe):
-    def __init__(self, board_size, mode):
+class GameTicTacToe(GameSessionTicTacToe):
+    def __init__(self, board_size, mode=2):
         super().__init__(board_size)
         self.mode = mode
         self.game()
 
+    def current_game(self):
+        if self.mode == 1:
+            self.computer_game()
+        self.humans_move()
+
     def game(self):
-        if self.mode == 2:
-            self.players_vs_player()
+        while True:
+            self.current_game()
+
+    def play_again(self):
+        """Start game again or not"""
+        play_again = input('Play again? (y-yes): ').lower()
+        if play_again == 'y':
+            self.__init__(self.board_size, self.mode)
+        else:
+            self.quit_the_game()
