@@ -1,5 +1,5 @@
 *.log
 logs/
 *.log
-venv_tic_tac/
+venv_tictac/
 __pycache__/
