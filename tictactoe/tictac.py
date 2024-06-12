@@ -2,13 +2,12 @@ from random import choice
 
 
 class TicTacToe:
-    """Game TicTacToe"""
+    """Game TicTacToe """
 
     def __init__(self, board_size=3, mode=2):
+        self.board = self.create_board(board_size)
         self.board_size = board_size
         self.mode = mode
-        self.board = self.create_board(board_size)
-        self.step = self.board_size ** 2
         self.current_player = 'X'
 
     def draw_board(self):
@@ -23,7 +22,6 @@ class TicTacToe:
 
     def game_step(self, field: int, current_player: str):
         """Human or computer step (Put value in board)"""
-        self.step -= 1
         for row in range(self.board_size):
             for col in range(self.board_size):
                 if self.board[row][col] == field:
@@ -70,8 +68,9 @@ class TicTacToe:
     def check_win(self, current_player: str):
         """Check human or CP win or not"""
         won = self.check_lines()
+        available_move = self.available_moves()
 
-        if won or self.step == 0:
+        if won or not available_move:
             self.draw_board()
             if won:
                 print(f'My congratulations. {current_player.upper()} WON !!!')
@@ -92,6 +91,15 @@ class TicTacToe:
         if check_win_dangerous != 1 and won:
             return self.find_dangerous_move(line)
         return won
+
+    def available_moves(self) -> list:
+        """Search available field for move"""
+        all_numbers_board = range(1, (self.board_size ** 2) + 1)
+        available = [self.board[row][col] for row in range(self.board_size)
+                     for col in range(self.board_size)
+                     if self.board[row][col] in all_numbers_board
+                     ]
+        return available
 
     @staticmethod
     def find_dangerous_move(line):
@@ -114,6 +122,8 @@ class TicTacToe:
     @staticmethod
     def create_board(board_size: int) -> list[list]:
         """CREATE BOARD"""
+        if board_size % 2 == 0:
+            raise ValueError('Board size can be only odd numbers (3, 5, 7, 9...)')
         board = [[cell for cell in range(row, row + board_size)]
                  for row in range(1, board_size ** 2, board_size)]
         return board
@@ -124,6 +134,7 @@ class GameSessionTicTacToe(TicTacToe):
 
     def move(self) -> int:
         """Human input"""
+        available_move = self.available_moves()
         max_number = self.board_size ** 2
         while True:
             self.draw_board()
@@ -132,9 +143,9 @@ class GameSessionTicTacToe(TicTacToe):
                 if field.lower() == 'q':
                     self.quit_the_game()
                 field = int(field)
-                if field > max_number or field < 1:
-                    print(f'You can choose only number between [1, {max_number}]\nTry again')
-                return field
+                if field in available_move:
+                    return field
+                print(f'You can choose only available between [1, {max_number}]\nTry again')
             except ValueError:
                 print(f'You can choose only number\nTry again')
 
@@ -143,15 +154,6 @@ class GameSessionTicTacToe(TicTacToe):
         field = self.move()
         self.game_step(field, self.current_player)
         self.current_player = self.next_player(self.current_player)
-
-    def available_moves(self) -> list:
-        """Search available field for move"""
-        all_numbers_board = range(1, self.board_size ** 2)
-        available = [self.board[row][col] for row in range(self.board_size)
-                     for col in range(self.board_size)
-                     if self.board[row][col] in all_numbers_board
-                     ]
-        return available
 
     def best_move(self) -> int:
         """Search best move for Computer"""
@@ -183,7 +185,7 @@ class GameSessionTicTacToe(TicTacToe):
             self.board[self.board_size - 1][0],
             self.board[self.board_size - 1][self.board_size - 1],
             self.board[0][self.board_size - 1],
-                     ]
+        ]
 
         available_move = self.available_moves()
         for move in best_move:
