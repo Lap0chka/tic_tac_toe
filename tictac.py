@@ -44,7 +44,7 @@ class TicTacToe:
             # check cols
             col_is_win = self.check_line(self.board[row], check_win_dangerous)
             if col_is_win:
-                return True
+                return col_is_win
 
             # check rows
             line = [self.board[col][row] for col in range(self.board_size)]
@@ -52,18 +52,18 @@ class TicTacToe:
 
             # check line col or row wins
             if row_is_win:
-                return True
+                return row_is_win
 
             main_diagonal.append(self.board[row][row])
             additional_diagonal.append(self.board[row][self.board_size - 1 - row])
 
         main_diagonal_is_win = self.check_line(main_diagonal, check_win_dangerous)
         if main_diagonal_is_win:
-            return True
+            return main_diagonal_is_win
 
         additional_diagonal_is_win = self.check_line(additional_diagonal, check_win_dangerous)
         if additional_diagonal_is_win:
-            return True
+            return additional_diagonal_is_win
 
         return False
 
@@ -87,9 +87,10 @@ class TicTacToe:
         else:
             self.quit_the_game()
 
-    @staticmethod
-    def check_line(line: list[int], check_win_dangerous: int) -> bool:
+    def check_line(self, line: list[int], check_win_dangerous: int) -> int | None | bool:
         won = len(set(line)) == check_win_dangerous
+        if check_win_dangerous != 1 and won:
+            return self.find_dangerous_move(line)
         return won
 
     @staticmethod
@@ -152,26 +153,44 @@ class GameSessionTicTacToe(TicTacToe):
                      ]
         return available
 
-    def best_move(self):
+    def best_move(self) -> int:
         """Search best move for Computer"""
-        available_move = self.available_moves()
-        field = choice(available_move)
+        dangerous_num = self.check_danger()
+        if dangerous_num:
+            return dangerous_num
+        field = self.find_available_best_move()
         return field
 
-    def check_danger(self):
-        res = self.check_lines(dangerous=True)
-        print(res)
+    def check_danger(self) -> int:
+        dangerous_num = self.check_lines(dangerous=True)
+        return dangerous_num
 
     def computer_step(self):
         """Computer step"""
         field = self.best_move()
         self.game_step(field, self.current_player)
         self.current_player = self.next_player(self.current_player)
-        self.check_danger()
 
     def computer_game(self):
         """Computer actions"""
         self.computer_step()
+
+    def find_available_best_move(self) -> int:
+        """Check all best move if they available"""
+        best_move = [
+            self.board[self.board_size // 2][self.board_size // 2],
+            self.board[0][0],
+            self.board[self.board_size - 1][0],
+            self.board[self.board_size - 1][self.board_size - 1],
+            self.board[0][self.board_size - 1],
+                     ]
+
+        available_move = self.available_moves()
+        for move in best_move:
+            if move in available_move:
+                return move
+        field = choice(available_move)
+        return field
 
 
 class GameTicTacToe(GameSessionTicTacToe):
