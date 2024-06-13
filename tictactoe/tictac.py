@@ -1,4 +1,8 @@
 from random import choice
+from logger import Logger
+
+logger_instance = Logger(__name__, 'log_file.log')
+logger = logger_instance.get_logger()
 
 
 class TicTacToe:
@@ -74,8 +78,10 @@ class TicTacToe:
             self.draw_board()
             if won:
                 print(f'My congratulations. {current_player.upper()} WON !!!')
+                logger.info(f'Player {current_player.upper()} won')
             else:
                 print(f"It's draw!")
+                logger.info(f"It's draw!")
             self.play_again()
 
     def play_again(self):
@@ -110,6 +116,7 @@ class TicTacToe:
     def quit_the_game():
         """QUIT"""
         print('Bye Bye Bye\nSee you latter!!!')
+        logger.debug('Bye Bye')
         quit()
 
     @staticmethod
@@ -144,16 +151,20 @@ class GameSessionTicTacToe(TicTacToe):
                     self.quit_the_game()
                 field = int(field)
                 if field in available_move:
+                    logger.info(f'Human chose field {field}')
                     return field
                 print(f'You can choose only available between [1, {max_number}]\nTry again')
             except ValueError:
                 print(f'You can choose only number\nTry again')
+                logger.log(logger.CRITICAL, f"Inputted wrong value")
 
     def humans_move(self):
         """Here function for human vs human"""
         field = self.move()
         self.game_step(field, self.current_player)
+        logger.info(f'Moved player {self.current_player}')
         self.current_player = self.next_player(self.current_player)
+        logger.info(f'Next move - {self.current_player}')
 
     def best_move(self) -> int:
         """Search best move for Computer"""
@@ -170,6 +181,7 @@ class GameSessionTicTacToe(TicTacToe):
     def computer_step(self):
         """Computer step"""
         field = self.best_move()
+        logger.info(f'Computer moved field {field}')
         self.game_step(field, self.current_player)
         self.current_player = self.next_player(self.current_player)
 
@@ -207,5 +219,6 @@ class GameTicTacToe(GameSessionTicTacToe):
         self.humans_move()
 
     def game(self):
+        logger.debug("Start Game")
         while True:
             self.current_game()
