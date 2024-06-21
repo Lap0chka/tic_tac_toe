@@ -13,13 +13,17 @@ class TicTacToe:
         self.board_size = board_size
         self.mode = mode
         self.current_player = 'X'
+        self.hide = False
 
-    def draw_board(self):
+    def draw_board(self, hide=False):
         """Drawing board"""
         print(('_' * self.board_size) * self.board_size, )
         for row in range(self.board_size):
             for cell in range(self.board_size):
-                cell = f'|{self.board[row][cell]}|'
+                value = self.board[row][cell]
+                if hide:
+                    value = self.board[row][cell] if type(self.board[row][cell]) != int else ' '
+                cell = f'|{value}|'
                 print(cell.center(self.board_size), end="")
             print()
         print(('_' * self.board_size) * self.board_size, )
@@ -144,11 +148,14 @@ class GameSessionTicTacToe(TicTacToe):
         available_move = self.available_moves()
         max_number = self.board_size ** 2
         while True:
-            self.draw_board()
+            self.draw_board(self.hide)
             try:
-                field = input('Choose your field (q latter to quit): ')
+                field = input("Choose your field ('q' latter to quit or 'o' hide/show number ): ")
                 if field.lower() == 'q':
                     self.quit_the_game()
+                if field.lower() == 'o':
+                    self.hide = False if self.hide else True
+                    continue
                 field = int(field)
                 if field in available_move:
                     logger.info(f'Human chose field {field}')
