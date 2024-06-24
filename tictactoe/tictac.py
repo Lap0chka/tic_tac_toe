@@ -74,18 +74,24 @@ class TicTacToe:
         return False
 
     def check_win(self, current_player: str):
-        """Check human or CP win or not"""
+        """Check if the current player (human or CP) has won or if the game is a draw."""
+        # Check if there's a winning condition
         won = self.check_lines()
-        available_move = self.available_moves()
+        # Get the list of available moves
+        available_moves = self.available_moves()
 
-        if won or not available_move:
-            self.draw_board()
+        if won or not available_moves:
+            # Redraw the board with the current state
+            self.draw_board(self.hide)
+
             if won:
-                print(f'My congratulations. {current_player.upper()} WON !!!')
+                print(f'My congratulations. {current_player.upper()} WON!!!')
                 logger.info(f'Player {current_player.upper()} won')
             else:
-                print(f"It's draw!")
-                logger.info(f"It's draw!")
+                print("It's a draw!")
+                logger.info("It's a draw!")
+
+            # Ask if players want to play again
             self.play_again()
 
     def play_again(self):
@@ -143,27 +149,48 @@ class TicTacToe:
 class GameSessionTicTacToe(TicTacToe):
     """Class Computer VS Human or Human vs Human"""
 
-    def move(self) -> int:
-        """Human input"""
-        available_move = self.available_moves()
-        max_number = self.board_size ** 2
+    def choose_tic_or_toe(self):
+        """Prompt the user to choose their symbol (X or O) for the tic-tac-toe game."""
         while True:
-            self.draw_board(self.hide)
+            current_player = input("What tic tac do you want to play (x or o): ").strip().lower()
+
+            if current_player not in ['x', 'o']:
+                print('You can choose only x or o')
+                continue
+
+            logger.info(f'User will play {current_player.upper()}')
+
+            if current_player == 'o':
+                break
+
+            self.humans_move()
+            break
+
+    def move(self) -> int:
+        """Handles human player's move input."""
+        available_moves = self.available_moves()
+        max_number = self.board_size ** 2
+
+        while True:
+            self.draw_board(self.hide)  # Draw the board with or without hidden numbers
             try:
-                field = input("Choose your field ('q' latter to quit or 'o' hide/show number ): ")
-                if field.lower() == 'q':
-                    self.quit_the_game()
-                if field.lower() == 'o':
-                    self.hide = False if self.hide else True
-                    continue
-                field = int(field)
-                if field in available_move:
+                choice = input("Choose your field ('q' to quit, 'o' to hide/show numbers): ").strip().lower()
+
+                if choice == 'q':
+                    self.quit_the_game()  # Quit the game if 'q' is pressed
+                elif choice == 'o':
+                    self.hide = not self.hide  # Toggle hide/show numbers
+                    continue  # Redisplay the board and continue loop
+
+                field = int(choice)  # Convert input to integer
+                if field in available_moves:
                     logger.info(f'Human chose field {field}')
-                    return field
-                print(f'You can choose only available between [1, {max_number}]\nTry again')
+                    return field  # Return the valid chosen field
+                else:
+                    print(f'You can choose only from available fields between [1, {max_number}]. Try again.')
             except ValueError:
-                print(f'You can choose only number\nTry again')
-                logger.log(logger.CRITICAL, f"Inputted wrong value")
+                print('You can choose only numbers. Try again.')
+                logger.critical("Invalid input value")
 
     def humans_move(self):
         """Here function for human vs human"""
@@ -192,40 +219,43 @@ class GameSessionTicTacToe(TicTacToe):
         self.game_step(field, self.current_player)
         self.current_player = self.next_player(self.current_player)
 
-    def computer_game(self):
-        """Computer actions"""
-        self.computer_step()
-
     def find_available_best_move(self) -> int:
-        """Check all best move if they available"""
-        best_move = [
-            self.board[self.board_size // 2][self.board_size // 2],
-            self.board[0][0],
-            self.board[self.board_size - 1][0],
-            self.board[self.board_size - 1][self.board_size - 1],
-            self.board[0][self.board_size - 1],
+        """Find the best available move starting from the center and then corners."""
+        # Define the best moves in order: center, then corners
+        best_moves = [
+            self.board[self.board_size // 2][self.board_size // 2],  # Center
+            self.board[0][0],  # Top-left corner
+            self.board[self.board_size - 1][0],  # Bottom-left corner
+            self.board[self.board_size - 1][self.board_size - 1],  # Bottom-right corner
+            self.board[0][self.board_size - 1],  # Top-right corner
         ]
 
-        available_move = self.available_moves()
-        for move in best_move:
-            if move in available_move:
+        # Get the list of available moves
+        available_moves = self.available_moves()
+
+        # Check for the best move that is available
+        for move in best_moves:
+            if move in available_moves:
                 return move
-        field = choice(available_move)
-        return field
+
+        # If no best move is available, choose a random available move
+        return choice(available_moves)
 
 
 class GameTicTacToe(GameSessionTicTacToe):
     def __init__(self, board_size, mode=2):
         super().__init__(board_size, mode)
+        self.choose_tic_or_toe()
         self.game()
 
     def current_game(self):
         """Choose mode"""
         if self.mode == 1:
-            self.computer_game()
+            self.computer_step()
         self.humans_move()
 
     def game(self):
         logger.debug("Start Game")
+
         while True:
             self.current_game()
