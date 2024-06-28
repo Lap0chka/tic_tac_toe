@@ -21,7 +21,7 @@ class TicTacToe:
         for row in range(self.board_size):
             for cell in range(self.board_size):
                 value = self.board[row][cell]
-                if hide and type(self.board[row][cell]) == int:
+                if hide and isinstance(int, self.board[row][cell]):
                     value = ' '
                 cell = f'|{value}|'
                 print(cell.center(self.board_size), end="")
