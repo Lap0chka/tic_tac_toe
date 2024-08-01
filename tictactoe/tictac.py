@@ -15,6 +15,16 @@ class TicTacToe:
         self.current_player = 'X'
         self.hide = False
 
+    @property
+    def mode(self):
+        return self._mode
+
+    @mode.setter
+    def mode(self, mode):
+        if mode not in [1, 2]:
+            raise ValueError('Mode must be 1 or 2.')
+        self._mode = mode
+
     def draw_board(self, hide=False):
         """Drawing board"""
         print(('_' * self.board_size) * self.board_size, )
