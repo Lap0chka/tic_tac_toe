@@ -4,7 +4,6 @@ from tictac import TicTacToe
 
 
 class TestTicTacToe(unittest.TestCase):
-
     def setUp(self):
         self.game = TicTacToe(board_size=3)
 

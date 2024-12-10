@@ -64,12 +64,10 @@ class TicTacToe:
             raise ValueError("Mode must be 1 or 2.")
         self._mode = mode
 
-    def draw_board(self, hide: bool = False) -> None:
+    def draw_board(self) -> None:
         """
         Draw the current state of the game board.
 
-        Args:
-            hide (bool): If True, hides cells with integers (useful for hiding available moves).
         """
         border = "_" * (self.board_size * 2 + 1)
         print(border)
@@ -78,7 +76,7 @@ class TicTacToe:
             for col in range(self.board_size):
                 value = self.board[row][col]
                 # Hide cell if hide flag is True and the cell contains an integer
-                if hide and isinstance(value, int):
+                if self.hide and isinstance(value, int):
                     value = " "
                 cell = f'|{value if value is not None else " "}|'
                 print(cell, end="")
@@ -99,7 +97,6 @@ class TicTacToe:
         for row in range(self.board_size):
             for col in range(self.board_size):
                 if self.board[row][col] == field:
-                    print(type(self.board[row][col]))
                     self.board[row][col] = current_player
                     break
 
@@ -166,7 +163,7 @@ class TicTacToe:
         # If there's a win or no available moves (draw), handle the game end
         if won or not available_moves:
             # Redraw the board with the current state
-            self.draw_board(self.hide)
+            self.draw_board()
 
             if won:
                 print(f"Congratulations! {current_player.upper()} WON!!!")
@@ -323,7 +320,7 @@ class GameTicTacToe(TicTacToe):
         max_number = self.board_size**2
 
         while True:
-            self.draw_board(self.hide)  # Draw the board with the current state
+            self.draw_board()  # Draw the board with the current state
             try:
                 user_input = (
                     input("Choose your field ('q' to quit, 'o' to hide/show numbers): ")
