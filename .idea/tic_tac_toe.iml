@@ -6,7 +6,7 @@
       <excludeFolder url="file://$MODULE_DIR$/venv_tictac" />
       <excludeFolder url="file://$MODULE_DIR$/venvtictac" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="Python 3.12 (tic_tac_toe)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>

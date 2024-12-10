@@ -7,5 +7,5 @@ def main():
     GameTicTacToe(board_size, mode)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
