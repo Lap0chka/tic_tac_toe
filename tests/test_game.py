@@ -7,7 +7,7 @@ class TestGame(unittest.TestCase):
 
     def setUp(self) -> None:
         """
-        Set up a new game instance before each test.
+        Set up a new game instance before each tests.
         """
         self.game: Game = Game(3)
 
